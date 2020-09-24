@@ -1,34 +1,52 @@
 import React from 'react';
 
-export default function ContactLIst(props) {
-    
-    const contacts = props.contact.map(person => {
-        
-        return (
-            <table key={person.id}>
-                <tbody>
-                 <tr>
-                 <th> Picture:  </th>
-                 <th>Name: </th>
-                 <th>Popularity: </th>     
-                 <th>Action: </th>               
-                </tr>
+const ContactList = (props) => {
+  // console.log(props.deleteContact);
 
-                <tr>
-                <td><img src={person.pictureUrl} alt={person.name} width="100"></img></td>
-                <td>{person.name}</td>
-                <td>{person.popularity}</td>
-                <td><button onClick={person.deleteContact}> Delete</button></td>
-                </tr>
-                </tbody>
-            </table>
-        )
-    });
-   
-    return (
-    <div>
-        {contacts}
+  const filtered = props.contacts.filter((contact) =>
+    contact.name.toLowerCase().includes(props.query.toLowerCase())
+  );
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
+      <table>
+        <thead>
+          <tr>
+            <th>Picture</th>
+            <th>Name</th>
+            <th>Popularity</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map((contact) => {
+            return (
+              <tr key={contact.id}>
+                <td>
+                  <img
+                    src={contact.pictureUrl}
+                    height="100px"
+                    alt={contact.name}
+                  />
+                </td>
+                <td>{contact.name}</td>
+                <td>{contact.popularity.toFixed(2)}</td>
+                <td>
+                  <button
+                    onClick={() => {
+                      props.deleteContact(contact.id);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
-    
-    )
-}
+  );
+};
+
+export default ContactList;

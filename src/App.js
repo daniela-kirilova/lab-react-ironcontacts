@@ -1,48 +1,87 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
 import contacts from './contacts.json';
 import ContactList from './ContactList';
-class App extends React.Component {
+import SearchField from './SearchField';
+import './App.css';
+
+class App extends Component {
+  // initial state
   state = {
-    contact: contacts.slice(0, 5),
+    contacts: contacts.slice(0, 5),
+    query: ''
+  };
+
+  setQuery = queryInput => {
+    this.setState({
+      query: queryInput
+    });
+  }
+
+  deleteContact = contactId => {
+    this.setState({
+      contacts: this.state.contacts.filter(contact => {
+        return contact.id !== contactId;
+      })
+    });
   };
 
   addContact = () => {
-    const newContact = contacts[contacts.length * Math.random() | 0]
-    
-    const contactCopy = this.state.contact.slice();
-    contactCopy.push(newContact);
+    const random = contacts[Math.floor(Math.random() * contacts.length)];
+
+    // checking if in this.state.contacts we already have the random contact
+    if (this.state.contacts.find(contact => contact.id === random.id)) {
+      // checking if we have not yet added all the contacts
+      if (this.state.contacts.length < contacts.length) {
+        this.addContact();
+      }
+      return;
+    }
+
     this.setState({
-      contact: contactCopy,
+      contacts: [random, ...this.state.contacts]
     });
   };
-  sortByName=()=>{
-    const nameSorted = this.state.contact.slice()
-    nameSorted.sort((a,b)=>
-      (a.name < b.name) ? -1 : ((a.name> b.name) ? 1:0))
-   
-  this.setState({
-      contact: nameSorted
-  })
-  }
-  sortByPopularity= ()=>{
-const popularitySorted = this.state.contact.slice()
-popularitySorted.sort((a,b)=>
-  (a.popularity > b.popularity) ? -1 : ((a.popularity < b.popularity) ? 1 : 0))
-   
-  this.setState({
-      contact: popularitySorted
-    })
-  }
+
+  sortByName = () => {
+    const sorted = [...this.state.contacts];
+    sorted.sort((a, b) => a.name.localeCompare(b.name));
+
+    this.setState({
+      contacts: sorted
+    });
+  };
+
+  sortByPopularity = () => {
+    const sorted = this.state.contacts.slice();
+    sorted.sort((a, b) => b.popularity - a.popularity);
+
+    this.setState({
+      contacts: sorted
+    });
+  };
+
+
+
   render() {
     return (
-      <div className="App">
-        <h1>Contacts</h1>       
-        <button onClick={this.addContact}>Add Contact</button>
-        <button onClick={this.sortByName}>Sort by Name</button>
-        <button onClick={this.sortByPopularity}>Sort by Popularity</button>
-        <ContactList contact={this.state.contact} />
+      <div className='App'>
+
+        <h1>IronContacts</h1>
+
+        <button onClick={this.addContact}>Add Random Contact</button>
+        <button onClick={this.sortByName}>Sort by name</button>
+        <button onClick={this.sortByPopularity}>Sort by popularity</button>
+
+        <SearchField
+          setQuery={this.setQuery}
+          query={this.state.query}
+        />
+
+        <ContactList
+          contacts={this.state.contacts}
+          deleteContact={this.deleteContact}
+          query={this.state.query}
+        />
       </div>
     );
   }
